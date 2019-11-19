@@ -1,5 +1,5 @@
 {
-  "name": "tiamo/spss",
+  "name": "collecthor/spss",
   "description": "SPSS is a php-based implementation of IBM SPSS Statistics Standard",
   "keywords": [
     "SPSS",
@@ -17,6 +17,10 @@
   "license": "MIT",
   "authors": [
     {
+      "name": "Sam Mousa",
+      "email": "sam@mousa.nl"
+    },
+    {
       "name": "Korniienko Vladyslav",
       "email": "vk.tiamo@gmail.com"
     }
@@ -24,7 +28,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": ">=5.5",
+    "php": ">=7.3",
     "ext-mbstring": "*",
     "ext-bcmath": "*"
   },
