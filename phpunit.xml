@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit backupGlobals="false"
          backupStaticAttributes="false"
-         bootstrap="./bootstrap.php"
+         bootstrap="tests/bootstrap.php"
          colors="true"
          verbose="true"
          convertErrorsToExceptions="true"
@@ -11,7 +11,7 @@
          stopOnFailure="false">
     <testsuites>
         <testsuite name="SPSS Test Suite">
-            <directory suffix="Test.php">./</directory>
+            <directory suffix="Test.php">tests</directory>
         </testsuite>
     </testsuites>
     <filter>
