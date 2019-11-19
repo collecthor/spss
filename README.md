@@ -42,7 +42,7 @@ Reader example:
 
 ```php
 // Initialize reader
-$reader = \SPSS\Reader::fromFile('path/to/file.sav');
+$reader = \collecthor\spss\Reader::fromFile('path/to/file.sav');
 
 // Read header data
 $reader->readHeader();
@@ -57,13 +57,13 @@ $reader->read();
 ```
 or
 ```php
-$reader = \SPSS\Reader::fromString(file_get_contents('path/to/file.sav'))->read();
+$reader = \collecthor\spss\Reader::fromString(file_get_contents('path/to/file.sav'))->read();
 ```
 
 Writer example:
 
 ```php
-$writer = new \SPSS\Writer([
+$writer = new \collecthor\spss\Writer([
     'header' => [
             'prodName'     => '@(#) SPSS DATA FILE test',
             'layoutCode'   => 2,
