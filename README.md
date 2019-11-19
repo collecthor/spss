@@ -1,14 +1,19 @@
 # SPSS / PSPP
 
 A PHP library for reading and writing SPSS / PSPP .sav data files.
+This library was forked from tiamo/spss since the original is not seeing a lot of activity.
 
 VERSION 2.1.0 ([CHANGELOG](CHANGELOG.md))
 
-[![Build Status](https://travis-ci.org/tiamo/spss.svg?branch=master)](https://travis-ci.org/tiamo/spss)
+[![Build Status](https://travis-ci.org/tiamo/spss.svg?branch=master)](https://travis-ci.org/collecthor/spss)
+
+# Plans
+
+The plan is, in time, to fully rewrite this library to allow for streaming large datasets.
 
 ## Requirements
 
-* PHP 5.5.0 and up
+* PHP 7.3.0 and up (this fork will not support PHP versions that do not have [active support](https://www.php.net/supported-versions.php))
 * mbstring extension
 * bcmath extension
 
@@ -19,7 +24,7 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-composer require tiamo/spss
+composer require collecthor/spss
 ```
 
 or add
@@ -72,7 +77,7 @@ $writer = new \SPSS\Writer([
         [
                 'name'     => 'VAR1', # For UTF-8, 64 / 3 = 21, mb_substr($var1, 0, 21);
                 'width'    => 0,
-                'decimals' => 0
+                'decimals' => 0,
                 'format'   => 5,
                 'columns'  => 50,
                 'align'    => 1,
