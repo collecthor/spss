@@ -5,8 +5,13 @@ This library was forked from tiamo/spss since the original is not seeing a lot o
 
 VERSION 2.1.0 ([CHANGELOG](CHANGELOG.md))
 
-[![Build Status](https://travis-ci.org/tiamo/spss.svg?branch=master)](https://travis-ci.org/collecthor/spss)
-
+[![Build Status](https://travis-ci.com/collecthor/spss.svg?branch=master)](https://travis-ci.com/collecthor/spss)
+[![Latest Stable Version](https://poser.pugx.org/collecthor/spss/v/stable)](https://packagist.org/packages/collecthor/spss)
+[![Total Downloads](https://poser.pugx.org/collecthor/spss/downloads)](https://packagist.org/packages/collecthor/spss)
+[![Latest Unstable Version](https://poser.pugx.org/collecthor/spss/v/unstable)](https://packagist.org/packages/collecthor/spss)
+[![License](https://poser.pugx.org/collecthor/spss/license)](https://packagist.org/packages/collecthor/spss)
+[![Code Coverage](https://scrutinizer-ci.com/g/collecthor/spss/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/collecthor/spss/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/collecthor/spss/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/collecthor/spss/?branch=master)
 # Plans
 
 The plan is, in time, to fully rewrite this library to allow for streaming large datasets.

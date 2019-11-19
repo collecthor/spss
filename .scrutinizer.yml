@@ -1,2 +1,8 @@
+build:
+  nodes:
+    analysis:
+      tests:
+        override:
+          - php-scrutinizer-run
 tools:
   external_code_coverage: true
