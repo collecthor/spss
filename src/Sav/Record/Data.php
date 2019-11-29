@@ -236,7 +236,7 @@ class Data extends Record
                     if (! $compressed) {
                         $buffer->writeDouble($value);
                     } else {
-                        if ($value == $sysmis || $value == "") {
+                        if ($value == $sysmis || $value === "") {
                             $this->writeOpcode($buffer, $dataBuffer, self::OPCODE_SYSMISS);
                         } elseif ($value >= 1 - $bias && $value <= 251 - $bias && $value == (int) $value) {
                             $this->writeOpcode($buffer, $dataBuffer, $value + $bias);
