@@ -75,7 +75,7 @@ class Data extends Record
                 } else {
                     $value = '';
                     foreach(Utils::getSegments($veryLongStrings[$var->name] ?? $var->width) as $segmentWidth) {
-                        $segment = $reader->read($segmentWidth + 8 - ($segmentWidth % 8));
+                        $segment = $reader->read($segmentWidth + (8 - ($segmentWidth % 8)) % 8);
                         $value .= rtrim($segment);
                         $index++;
                     }
@@ -156,7 +156,7 @@ class Data extends Record
         } else {
             foreach(Utils::getSegments($width) as $segmentWidth) {
                 $segment = str_pad(substr($value, 0, $segmentWidth), $segmentWidth);
-                $padding = str_repeat(' ', 8 - (strlen($segment) % 8));
+                $padding = str_repeat(' ', (8 - (strlen($segment) % 8)) % 8);
                 $writer->append($segment);
                 $writer->append($padding);
                 $writer->flush();
