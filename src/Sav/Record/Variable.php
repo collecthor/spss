@@ -93,10 +93,8 @@ class Variable extends Record
     /**
      * Returns true if WIDTH is a very long string width, false otherwise.
      *
-     * @param int $width
-     * @return int
      */
-    public static function isVeryLong($width)
+    public static function isVeryLong(int $width): bool
     {
         return $width > self::REAL_VLS_CHUNK;
     }
@@ -128,11 +126,10 @@ class Variable extends Record
      */
     public function write(Buffer $buffer)
     {
-        $seg0width = Utils::segmentAllocWidth($this->width, 0);
         $hasLabel = ! empty($this->label);
 
         $buffer->writeInt(self::TYPE);
-        $buffer->writeInt($seg0width);
+        $buffer->writeInt(min(255, $this->width));
         $buffer->writeInt($hasLabel ? 1 : 0);
         $buffer->writeInt($this->missingValuesFormat);
         $buffer->writeInt(Utils::bytesToInt($this->print));
@@ -164,19 +161,17 @@ class Variable extends Record
             }
         }
 
-        // I think we don't need an empty record
-        //$this->writeBlank($buffer, $seg0width);
-
         // Write additional segments for very long string variables.
         if (self::isVeryLong($this->width)) {
-            $this->writeBlank($buffer, $seg0width);
-            $segmentCount = Utils::widthToSegments($this->width);
-            for ($i = 1; $i < $segmentCount; $i++) {
-                $segmentWidth = Utils::segmentAllocWidth($this->width, $i);
-                $format = Utils::bytesToInt([0, 1, max($segmentWidth, 1), 0]);
+            $format = Utils::bytesToInt([0, 1, 1, 0]);
+
+            foreach(Utils::getSegments($this->width) as $i => $segmentWidth) {
+                if ($i == 0) {
+                    continue;
+                }
                 $buffer->writeInt(self::TYPE);
                 $buffer->writeInt($segmentWidth);
-                $buffer->writeInt($hasLabel); // No variable label
+                $buffer->writeInt(1); // No variable label
                 $buffer->writeInt(0); // No missing values
                 $buffer->writeInt($format); // Print format
                 $buffer->writeInt($format); // Write format
@@ -190,27 +185,7 @@ class Variable extends Record
                 $length = mb_strlen($segmentLabel, '8BIT');
                 $buffer->writeInt($length);
                 $buffer->writeString($segmentLabel, Utils::roundUp($length, 4));
-                $this->writeBlank($buffer, $segmentWidth);
             }
-        }
-    }
-
-    /**
-     * @param Buffer $buffer
-     * @param int $width
-     */
-    public function writeBlank(Buffer $buffer, $width)
-    {
-        // assert(self::widthToSegments($width) == 1);
-
-        for ($i = 8; $i < $width; $i += 8) {
-            $buffer->writeInt(self::TYPE);
-            $buffer->writeInt(-1);
-            $buffer->writeInt(0);
-            $buffer->writeInt(0);
-            $buffer->writeInt(0x011d01);
-            $buffer->writeInt(0x011d01);
-            $buffer->write('        ');
         }
     }
 
@@ -222,7 +197,7 @@ class Variable extends Record
      * @param int $seg Index of the segment
      * @return string Name of the segment
      */
-    public function getSegmentName($seg = 0)
+    private function getSegmentName($seg = 0)
     {
         $name = $this->name;
         $name = mb_substr($name, 0, 5);
@@ -230,4 +205,6 @@ class Variable extends Record
 
         return mb_strtoupper($name);
     }
+
+
 }

@@ -5,11 +5,6 @@ namespace SPSS\Sav\Record\Info;
 use SPSS\Buffer;
 use SPSS\Sav\Record\Info;
 
-// Available as of PHP 7.2.0.
-if (! defined('PHP_FLOAT_MAX')) {
-    define('PHP_FLOAT_MAX', 1.7976931348623e+308);
-}
-
 class MachineFloatingPoint extends Info
 {
     const SUBTYPE = 4;

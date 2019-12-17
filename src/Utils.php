@@ -183,44 +183,20 @@ class Utils
      * @param int $width
      * @return int
      */
-    public static function widthToSegments($width)
+    public static function widthToSegments(int $width): int
     {
-        return Variable::isVeryLong($width) ? ceil($width / Variable::EFFECTIVE_VLS_CHUNK) : 1;
+        return (int) Variable::isVeryLong($width) ? ceil(($width) / Variable::EFFECTIVE_VLS_CHUNK) : 1;
     }
 
-    /**
-     * Returns the width to allocate to the given SEGMENT within a variable of the given WIDTH.
-     * A segment is a physical variable in the system file that represents some piece of a logical variable.
-     *
-     * @param int $width
-     * @param int $segment
-     * @return int
-     */
-    public static function segmentAllocWidth($width, $segment = 0)
+    public static function getSegments(int $width): iterable
     {
-        $segmentCount = self::widthToSegments($width);
-        // assert($segment < $segmentCount);
-
-        if (! Variable::isVeryLong($width)) {
-            return $width;
+        $count = self::widthToSegments($width);
+        for($i = 1; $i < $count; $i++) {
+            yield 255;
         }
-
-        return $segment < $segmentCount - 1 ? Variable::REAL_VLS_CHUNK : self::roundUp($width - $segment * Variable::EFFECTIVE_VLS_CHUNK, 8);
+        yield $width - ($count - 1) * Variable::EFFECTIVE_VLS_CHUNK;
     }
 
-    /**
-     * Returns the number of bytes to allocate to the given SEGMENT within a variable of the given width.
-     * This is the same as @see segmentAllocWidth, except that a numeric value takes up 8 bytes despite having a width of 0.
-     *
-     * @param int $width
-     * @param int $segment
-     * @return int
-     */
-    public static function segmentAllocBytes($width, $segment)
-    {
-        assert($segment < self::widthToSegments($width));
 
-        return $width == 0 ? 8 : self::roundUp(self::segmentAllocWidth($width, $segment), 8);
-    }
 
 }

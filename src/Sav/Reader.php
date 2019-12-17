@@ -39,7 +39,7 @@ class Reader
     /**
      * @var \SPSS\Buffer
      */
-    protected $_buffer;
+    public $_buffer;
 
     /**
      * Reader constructor.

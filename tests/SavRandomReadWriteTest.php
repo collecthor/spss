@@ -64,18 +64,8 @@ class SavRandomReadWriteTest extends TestCase
     {
         $writer = new Writer($data);
 
-        // $writer->save(__DIR__ . '/../examples/data.sav');
-
         $buffer = $writer->getBuffer();
         $buffer->rewind();
-
-        // $stream = $buffer->getStream();
-        // $this->assertContains(stream_get_contents($stream, 4), [
-        //         Record\Header::NORMAL_REC_TYPE,
-        //         Record\Header::ZLIB_REC_TYPE,
-        //     ]
-        // );
-        //
 
         $reader = Reader::fromString($buffer->getStream())->read();
 
@@ -89,26 +79,13 @@ class SavRandomReadWriteTest extends TestCase
 
         $index = 0;
         foreach ($data['variables'] as $var) {
-            /** @var Record\Variable $_var */
-            $_var = $reader->variables[$index];
+            /** @var Record\Variable $readVariable */
+            $readVariable = $reader->variables[$index];
 
-            // if (isset($reader->info[Record\Info\LongVariableNames::SUBTYPE])) {
-            //     // ...
-            // }
-            //
-            // if (mb_strlen($_var->label) > 8) {
-            // }
-            // $label = $_var->label;
 
-            // TODO: long variables
-            //  $this->assertEquals($var['name'], $_var->name);
-
-            // var_dump($_var->print, $var);
-            // exit;
-
-            $this->assertEquals($var['label'], $_var->label);
-            $this->assertEquals($var['format'], $_var->print[1]);
-            $this->assertEquals($var['decimals'], $_var->print[3]);
+            $this->assertEquals($var['label'], $readVariable->label);
+            $this->assertEquals($var['format'], $readVariable->print[1]);
+            $this->assertEquals($var['decimals'], $readVariable->print[3]);
 
             // TODO: data tests
             // Check variable data
