@@ -141,30 +141,6 @@ class Utils
     }
 
     /**
-     * Returns the number of bytes of uncompressed case data used for writing a variable of the given WIDTH to a system file.
-     * All required space is included, including trailing padding and internal padding.
-     *
-     * @param int $width
-     * @return int
-     */
-    public static function widthToBytes($width)
-    {
-        // assert($width >= 0);
-
-        if ($width == 0) {
-            $bytes = 8;
-        } elseif (! Variable::isVeryLong($width)) {
-            $bytes = $width;
-        } else {
-            $chunks = $width / Variable::EFFECTIVE_VLS_CHUNK;
-            $remainder = $width % Variable::EFFECTIVE_VLS_CHUNK;
-            $bytes = floor($chunks) * Variable::REAL_VLS_CHUNK + $remainder;
-        }
-
-        return self::roundUp($bytes, 8);
-    }
-
-    /**
      * Returns the number of 8-byte units (octs) used to write data for a variable of the given WIDTH.
      *
      * @param int $width
@@ -172,7 +148,11 @@ class Utils
      */
     public static function widthToOcts($width)
     {
-        return self::widthToBytes($width) / 8;
+        $result = 0;
+        foreach(self::getSegments($width) as $segmentWidth) {
+            $result += ceil($segmentWidth / 8);
+        }
+        return (int) max(1, $result);
     }
 
     /**
@@ -185,7 +165,7 @@ class Utils
      */
     public static function widthToSegments(int $width): int
     {
-        return (int) Variable::isVeryLong($width) ? ceil(($width) / Variable::EFFECTIVE_VLS_CHUNK) : 1;
+        return (int) Variable::isVeryLong($width) ? ceil($width / Variable::EFFECTIVE_VLS_CHUNK) : 1;
     }
 
     public static function getSegments(int $width): iterable
