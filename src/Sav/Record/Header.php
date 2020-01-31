@@ -38,7 +38,6 @@ class Header extends Record
     /**
      * @var int Number of data elements per case.
      * This is the number of variables, except that long string variables add extra data elements (one for every 8 characters after the first 8).
-     * However, string variables do not contribute to this value beyond the first 255 bytes.
      * Further, system files written by some systems set this value to -1.
      * In general, it is unsafe for systems reading system files to rely upon this value.
      */

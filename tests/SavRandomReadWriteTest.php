@@ -44,12 +44,16 @@ class SavRandomReadWriteTest extends TestCase
                     'casesCount' => $header['casesCount'],
                 ]
             );
-            $header['nominalCaseSize'] += Utils::widthToOcts($var['width']);
+            $header['nominalCaseSize'] += $var->getOcts();
             $variables[] = $var;
         }
 
 
-        yield [compact('header', 'variables', 'documents')];
+        yield [[
+            'header' => $header,
+            'variables' => $variables,
+            'documents' => $documents
+        ]];
 
         $header['casesCount'] = 5;
         for($i = 0; $i < 1000; $i++) {
@@ -57,7 +61,7 @@ class SavRandomReadWriteTest extends TestCase
                 'id' => $this->generateRandomString(mt_rand(2, 100)),
                 'casesCount' => $header['casesCount']
             ]);
-            $header['nominalCaseSize'] = Utils::widthToOcts($variable['width']);
+            $header['nominalCaseSize'] = $variable->getOcts();
             yield [[
                 'header' => $header,
                 'variables' => [$variable],
@@ -99,12 +103,12 @@ class SavRandomReadWriteTest extends TestCase
             $readVariable = $reader->variables[$index];
 
 
-            $this->assertEquals($var['label'], $readVariable->label);
-            $this->assertEquals($var['format'], $readVariable->print[1]);
-            $this->assertEquals($var['decimals'], $readVariable->print[3]);
+            $this->assertEquals($var->label, $readVariable->label);
+            $this->assertEquals($var->format, $readVariable->print[1]);
+            $this->assertEquals($var->decimals, $readVariable->print[3]);
 
             // Check variable data
-            foreach ($var['data'] as $case => $value) {
+            foreach ($var->data as $case => $value) {
                 $this->assertEquals($value, $reader->data[$case][$index]);
             }
 

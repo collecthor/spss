@@ -29,9 +29,9 @@ class Writer
     public $document;
 
     /**
-     * @var Record\Info[]
+     * @var InfoRecordSet
      */
-    public $info = [];
+    private $info = [];
 
     /**
      * @var Record\Data
@@ -54,6 +54,7 @@ class Writer
         $this->buffer = Buffer::factory();
         $this->buffer->context = $this;
 
+        $this->info = new InfoRecordSet();
         if (! empty($data)) {
             $this->write($data);
         }
@@ -101,23 +102,8 @@ class Writer
         $variableNames = [];
         /** @var Variable $var */
         foreach (array_values($data['variables']) as $idx => $var) {
-
-            if (is_array($var)) {
-                $var = new Variable($var);
-            }
-
-            #if (! preg_match('/^[A-Za-z0-9_]+$/', $var->name)) {
-            # UTF-8 and '.' characters could pass here
-            if (! preg_match('/^[A-Za-z0-9_\.\x{4e00}-\x{9fa5}]+$/u', $var->name)) {
-                throw new \InvalidArgumentException(
-                    sprintf('Variable name `%s` contains an illegal character.', $var->name)
-                );
-            }
-
-            if (empty($var->width)) {
-                throw new \InvalidArgumentException(
-                    sprintf('Invalid field width. Should be an integer number greater than zero.')
-                );
+            if (!$var instanceof Variable) {
+                throw new \InvalidArgumentException('Variables must be instance of ' . Variable::class);
             }
 
             $variable = new Record\Variable();
@@ -129,7 +115,7 @@ class Writer
              * If SPSS renames them and it happens to be a long string then the segments will no longer share
              * the required prefix in the name.
              */
-            $name = strtoupper(substr($var->name, 0, 8));
+            $name = strtoupper(substr($var->getName(), 0, 8));
 
             $counter = 0;
             /**
@@ -138,7 +124,7 @@ class Writer
              * variables.
              */
             while (isset($variableNames[$name])) {
-                $name = strtoupper(substr($var->name, 0, 5) . base_convert($counter, 10, 36));
+                $name = strtoupper(substr($var->getName(), 0, 5) . base_convert($counter, 10, 36));
                 $counter++;
             }
 
@@ -146,7 +132,7 @@ class Writer
             $variable->name = $name;
 
             if ($var->format == Variable::FORMAT_TYPE_A) {
-                $variable->width = $var->width;
+                $variable->width = $var->getWidth();
             } else {
                 $variable->width = 0;
             }
@@ -155,26 +141,26 @@ class Writer
             $variable->print = [
                 0,
                 $var->format,
-                $var->width ? min($var->width, 255) : 8,
+                min($var->getWidth(), 255),
                 $var->decimals,
             ];
             $variable->write = [
                 0,
                 $var->format,
-                $var->width ? min($var->width, 255) : 8,
+                min($var->getWidth(), 255),
                 $var->decimals,
             ];
 
             // TODO: refactory
             $shortName = $variable->name;
-            $longName = $var->name;
+            $longName = $var->getName();
 
             if ($var->attributes) {
                 $this->info[Record\Info\VariableAttributes::SUBTYPE][$longName] = $var->attributes;
             }
 
             if ($var->missing) {
-                if ($var->width <= 8) {
+                if ($var->getWidth() <= 8) {
                     if (count($var->missing) >= 3) {
                         $variable->missingValuesFormat = 3;
                     } elseif (count($var->missing) == 2) {
@@ -193,7 +179,7 @@ class Writer
             if ($var->values) {
                 if ($variable->width > 8) {
                     $this->info[Record\Info\LongStringValueLabels::SUBTYPE][$longName] = [
-                        'width' => $var->width,
+                        'width' => $var->getWidth(),
                         'values' => $var->values,
                     ];
                 } else {
@@ -211,13 +197,13 @@ class Writer
                 }
             }
 
-            $this->info[Record\Info\LongVariableNames::SUBTYPE][$shortName] = $var->name;
+            $this->info[Record\Info\LongVariableNames::SUBTYPE][$shortName] = $var->getName();
 
-            if (Record\Variable::isVeryLong($var->width)) {
-                $this->info[Record\Info\VeryLongString::SUBTYPE][$shortName] = $var->width;
+            if (Record\Variable::isVeryLong($var->getWidth())) {
+                $this->info[Record\Info\VeryLongString::SUBTYPE][$shortName] = $var->getWidth();
             }
 
-            $segmentCount = Utils::widthToSegments($var->width);
+            $segmentCount = Utils::widthToSegments($var->getWidth());
             for ($i = 0; $i < $segmentCount; $i++) {
                 $this->info[Record\Info\VariableDisplayParam::SUBTYPE][] = [
                     $var->getMeasure(),
@@ -236,7 +222,7 @@ class Writer
                 $this->data->matrix[$case][$idx] = $value;
             }
 
-            $nominalIdx += Utils::widthToOcts($var->width);
+            $nominalIdx += $var->getOcts();
         }
 
         $this->header->nominalCaseSize = $nominalIdx;

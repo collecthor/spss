@@ -34,8 +34,7 @@ class LongStringTest extends TestCase
                 'creationTime' => '12:22:16',
             ],
             'variables' => [
-                [
-                    'name' => 'SHORT',
+                new Variable('SHORT', [
                     'label' => 'short label',
                     'width' => 100,
                     'format' => Variable::FORMAT_TYPE_A,
@@ -46,9 +45,8 @@ class LongStringTest extends TestCase
                         '20202020202020202020',
                         '303030303030303030303030303030',
                     ]
-                ],
-                [
-                    'name' => 'MEDIUM',
+                ]),
+                new Variable('MEDIUM', [
                     'label' => 'medium label',
                     'width' => 150,
                     'format' => Variable::FORMAT_TYPE_A,
@@ -59,8 +57,8 @@ class LongStringTest extends TestCase
                         '210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210',
                         '02600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260',
                     ]
-                ],
-                [
+                ]),
+                new Variable('MEDIUMER', [
                     'name' => 'MEDIUMER',
                     'label' => 'mediumer label',
                     'width' => 250,
@@ -72,8 +70,8 @@ class LongStringTest extends TestCase
                         '210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210',
                         '02600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260',
                     ]
-                ],
-                [
+                ]),
+                new Variable('SHORTLONG', [
                     'name' => 'SHORTLONG',
                     'label' => 'short long label',
                     'width' => 265,
@@ -85,9 +83,8 @@ class LongStringTest extends TestCase
                         '210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210210',
                         '0260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026002600260026012345',
                     ]
-                ],
-                [
-                    'name'   => 'LONGER1',
+                ]),
+                new Variable('LONGER1', [
                     'label'  => 'long label1',
                     'width'  => 30000,
                     'format' => Variable::FORMAT_TYPE_A,
@@ -98,8 +95,8 @@ class LongStringTest extends TestCase
                         $firstLong,
                         $secondLong
                     ]
-                ],
-                [
+                ]),
+                new Variable('LONGER2', [
                     'name'   => 'LONGER2',
                     'label'  => 'long label2',
                     'width'  => 30000,
@@ -111,8 +108,8 @@ class LongStringTest extends TestCase
                         $firstLong,
                         $secondLong
                     ]
-                ],
-                [
+                ]),
+                new Variable('short', [
                     'name'   => 'short',
                     'label'  => 'short label',
                     'format' => Variable::FORMAT_TYPE_F,
@@ -124,9 +121,8 @@ class LongStringTest extends TestCase
                         12135.12,
                         123
                     ],
-                ],
-                [
-                    'name'   => 'short',
+                ]),
+                new Variable('short', [
                     'label'  => 'short label',
                     'format' => Variable::FORMAT_TYPE_A,
                     'width'  => 8,
@@ -137,10 +133,11 @@ class LongStringTest extends TestCase
                         '12345678',
                         'abcdefgh'
                     ],
-                ],
+                ]),
             ],
         ];
         $writer = new Writer($data);
+        $this->assertSame(15, $writer->header->nominalCaseSize);
 
         // Uncomment if you want to really save and check the resulting file in SPSS
         $writer->save('/tmp/longString.sav');
@@ -149,11 +146,14 @@ class LongStringTest extends TestCase
         $buffer->rewind();
         
         $reader = Reader::fromString($buffer->getStream())->read();
-
+        /**
+         * @var  $i
+         * @var Variable $variable
+         */
         foreach ($data['variables'] as $i => $variable) {
-            foreach($variable['data'] as $case => $value) {
+            foreach($variable->data as $case => $value) {
                 if (is_string($value)) {
-                    $this->assertSame(substr($value, 0, $variable['width']), $reader->data[$case][$i],
+                    $this->assertSame(substr($value, 0, $variable->getWidth()), $reader->data[$case][$i],
                         "Position ($case, $i)");
                 } elseif (is_numeric($value)) {
                     $this->assertEqualsWithDelta($value, $reader->data[$case][$i], 0.00001);

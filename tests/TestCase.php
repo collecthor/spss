@@ -28,9 +28,8 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     /**
      * @param array $opts
-     * @return array
      */
-    protected function generateVariable($opts = [])
+    protected function generateVariable($opts = []): Variable
     {
         $opts = array_merge([
             'id' => uniqid(),
@@ -65,7 +64,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
             }
         }
 
-        return $var;
+        return new Variable($var['name'], $var);
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace SPSS\Sav;
 
+use SPSS\Utils;
+
 class Variable
 {
     // const TYPE_NUMERIC = 1;
@@ -59,8 +61,8 @@ class Variable
     const ROLE_PARTITION = 4;
     const ROLE_SPLIT = 5;
 
-    public $name;
-    public $width = 8;
+    private $name;
+    private $width = 8;
     public $decimals = 0;
     public $format = 0;
     public $columns;
@@ -88,11 +90,48 @@ class Variable
      *
      * @param array $data
      */
-    public function __construct($data = [])
+    public function __construct(string $name, $data = [])
     {
         foreach ($data as $key => $value) {
             $this->{$key} = $value;
         }
+        $this->name = $name;
+    }
+
+    public function setName(string $name)
+    {
+        #if (! preg_match('/^[A-Za-z0-9_]+$/', $var->name)) {
+        # UTF-8 and '.' characters could pass here
+        if (! preg_match('/^[A-Za-z0-9_\.\x{4e00}-\x{9fa5}]+$/u', $this->name)) {
+            throw new \InvalidArgumentException(
+                sprintf('Variable name `%s` contains an illegal character.', $this->name)
+            );
+        }
+    }
+
+    public function setWidth(int $width)
+    {
+        if ($width <= 0) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid field width. Should be an integer number greater than zero.')
+            );
+        }
+        $this->width = $width;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getWidth(): int
+    {
+        return $this->width;
+    }
+
+    public function getOcts(): int
+    {
+        return Utils::widthToOcts($this->width);
     }
 
     /**
