@@ -165,11 +165,10 @@ class Variable extends Record
         }
 
         // I think we don't need an empty record
-        //$this->writeBlank($buffer, $seg0width);
+        $this->writeDummyRecords($buffer, $seg0width);
 
         // Write additional segments for very long string variables.
         if (self::isVeryLong($this->width)) {
-            $this->writeBlank($buffer, $seg0width);
             $segmentCount = Utils::widthToSegments($this->width);
             for ($i = 1; $i < $segmentCount; $i++) {
                 $segmentWidth = Utils::segmentAllocWidth($this->width, $i);
@@ -190,16 +189,12 @@ class Variable extends Record
                 $length = mb_strlen($segmentLabel, '8BIT');
                 $buffer->writeInt($length);
                 $buffer->writeString($segmentLabel, Utils::roundUp($length, 4));
-                $this->writeBlank($buffer, $segmentWidth);
+                $this->writeDummyRecords($buffer, $segmentWidth);
             }
         }
     }
 
-    /**
-     * @param Buffer $buffer
-     * @param int $width
-     */
-    public function writeBlank(Buffer $buffer, $width)
+    private function writeDummyRecords(Buffer $buffer, int $width): void
     {
         // assert(self::widthToSegments($width) == 1);
 
