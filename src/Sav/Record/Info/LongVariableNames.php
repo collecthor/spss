@@ -36,8 +36,10 @@ class LongVariableNames extends Info
     {
         $data = '';
         foreach ($this->data as $key => $value) {
-            $data .= sprintf('%s=%s', $key, $value) . self::DELIMITER;
+            $data .= "$key=$value" . self::DELIMITER;
         }
+
+        $data = substr($data, 0, -1);
         $this->dataCount = strlen($data);
         parent::write($buffer);
         $buffer->writeString($data);
