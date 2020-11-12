@@ -34,6 +34,27 @@ class MachineInteger extends Info
     public $compressionCode = 1;
 
     /**
+     * @var int Machine endianness.
+     * 1 indicates big-endian,
+     * 2 indicates little-endian.
+     */
+    public $endianness = 2;
+
+    /**
+     * @var int Character code.
+     * The following values have been actually observed in system files:
+     * 1        EBCDIC.
+     * 2        7-bit ASCII.
+     * 3        8-bit ASCII.
+     * 4        DEC Kanji.
+     * 1250     The windows-1250 code page for Central European and Eastern European languages.
+     * 1252     The windows-1252 code page for Western European languages.
+     * 28591    ISO 8859-1.
+     * 65001    UTF-8.
+     */
+    public $characterCode = 65001;
+
+    /**
      * @var int Always set to 4.
      */
     protected $dataSize = 4;
@@ -53,6 +74,8 @@ class MachineInteger extends Info
         $this->machineCode = $buffer->readInt();
         $this->floatingPointRep = $buffer->readInt();
         $this->compressionCode = $buffer->readInt();
+        $this->endianness = $buffer->readInt();
+        $this->characterCode = $buffer->readInt();
     }
 
     /**
@@ -67,5 +90,7 @@ class MachineInteger extends Info
         $buffer->writeInt($this->machineCode);
         $buffer->writeInt($this->floatingPointRep);
         $buffer->writeInt($this->compressionCode);
+        $buffer->writeInt($this->endianness);
+        $buffer->writeInt($this->characterCode);
     }
 }
