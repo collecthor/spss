@@ -103,7 +103,9 @@ class Variable
     {
         return in_array($format, [
             self::FORMAT_TYPE_COMMA,
+            self::FORMAT_TYPE_ADATE,
             self::FORMAT_TYPE_F,
+            self::FORMAT_TYPE_DATETIME
         ]);
     }
 
