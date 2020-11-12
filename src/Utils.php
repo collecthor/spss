@@ -25,7 +25,7 @@ class Utils
      * @param int $y
      * @return int
      */
-    public static function roundUp($x, $y)
+    public static function roundUp($x, $y): int
     {
         return ceil($x / $y) * $y;
     }
@@ -147,21 +147,19 @@ class Utils
      * @param int $width
      * @return int
      */
-    public static function widthToBytes($width)
+    public static function widthToBytes($width): int
     {
         // assert($width >= 0);
 
         if ($width == 0) {
-            $bytes = 8;
+            return 8;
         } elseif (! Variable::isVeryLong($width)) {
-            $bytes = $width;
+            return self::roundUp($width, 8);
         } else {
             $chunks = $width / Variable::EFFECTIVE_VLS_CHUNK;
             $remainder = $width % Variable::EFFECTIVE_VLS_CHUNK;
-            $bytes = floor($chunks) * Variable::REAL_VLS_CHUNK + $remainder;
+            return floor($chunks) * 256 + self::roundUp($remainder, 8);
         }
-
-        return self::roundUp($bytes, 8);
     }
 
     /**
@@ -170,9 +168,9 @@ class Utils
      * @param int $width
      * @return int
      */
-    public static function widthToOcts($width)
+    public static function widthToOcts($width): int
     {
-        return self::widthToBytes($width) / 8;
+        return (int) self::widthToBytes($width) / 8;
     }
 
     /**
@@ -196,7 +194,7 @@ class Utils
      * @param int $segment
      * @return int
      */
-    public static function segmentAllocWidth($width, $segment = 0)
+    public static function segmentAllocWidth($width, $segment = 0): int
     {
         $segmentCount = self::widthToSegments($width);
         // assert($segment < $segmentCount);
