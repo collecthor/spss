@@ -286,13 +286,7 @@ class Data extends Record
     public function writeOpcode(Buffer $buffer, Buffer $dataBuffer, $opcode)
     {
         if ($this->opcodeIndex >= 8 || $opcode == self::OPCODE_EOF) {
-            foreach ($this->opcodes as $opc) {
-                $buffer->write(chr($opc));
-            }
-            $padding = max(8 - count($this->opcodes), 0);
-            for ($i = 0; $i < $padding; $i++) {
-                $buffer->write(chr(self::OPCODE_NOP));
-            }
+            $buffer->write(str_pad(pack("c*", ...$this->opcodes), 8, "\0"));
             $this->opcodes = [];
             $this->opcodeIndex = 0;
             $dataBuffer->rewind();
