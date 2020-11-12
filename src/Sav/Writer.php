@@ -4,6 +4,7 @@ namespace SPSS\Sav;
 
 use SPSS\Buffer;
 use SPSS\Exception;
+use SPSS\Sav\Record\Info;
 use SPSS\Utils;
 
 class Writer
@@ -70,27 +71,27 @@ class Writer
         $this->header->nominalCaseSize = 0;
         $this->header->casesCount = 0;
 
-        $this->info[Record\Info\MachineInteger::SUBTYPE] = $this->prepareInfoRecord(
+        $this->info->set($this->prepareInfoRecord(
             Record\Info\MachineInteger::class,
             $data
-        );
+        ));
 
-        $this->info[Record\Info\MachineFloatingPoint::SUBTYPE] = $this->prepareInfoRecord(
+        $this->info->set($this->prepareInfoRecord(
             Record\Info\MachineFloatingPoint::class,
             $data
-        );
+        ));
 
-        $this->info[Record\Info\VariableDisplayParam::SUBTYPE] = new Record\Info\VariableDisplayParam();
-        $this->info[Record\Info\LongVariableNames::SUBTYPE] = new Record\Info\LongVariableNames();
-        $this->info[Record\Info\VeryLongString::SUBTYPE] = new Record\Info\VeryLongString();
-        $this->info[Record\Info\ExtendedNumberOfCases::SUBTYPE] = $this->prepareInfoRecord(
+        $this->info->set(new Record\Info\VariableDisplayParam());
+        $this->info->set(new Record\Info\LongVariableNames());
+        $this->info->set(new Record\Info\VeryLongString());
+        $this->info->set($this->prepareInfoRecord(
             Record\Info\ExtendedNumberOfCases::class,
             $data
-        );
-        $this->info[Record\Info\VariableAttributes::SUBTYPE] = new Record\Info\VariableAttributes();
-        $this->info[Record\Info\LongStringValueLabels::SUBTYPE] = new Record\Info\LongStringValueLabels();
-        $this->info[Record\Info\LongStringMissingValues::SUBTYPE] = new Record\Info\LongStringMissingValues();
-        $this->info[Record\Info\CharacterEncoding::SUBTYPE] = new Record\Info\CharacterEncoding('UTF-8');
+        ));
+        $this->info->set(new Record\Info\VariableAttributes());
+        $this->info->set(new Record\Info\LongStringValueLabels());
+        $this->info->set(new Record\Info\LongStringMissingValues());
+        $this->info->set(new Record\Info\CharacterEncoding('UTF-8'));
 
         $this->data = new Record\Data();
 
@@ -280,7 +281,7 @@ class Writer
      * @return array
      * @throws Exception
      */
-    private function prepareInfoRecord($className, $data, $group = 'info')
+    private function prepareInfoRecord($className, $data, $group = 'info'): Info
     {
         if (! class_exists($className)) {
             throw new Exception('Unknown class');
