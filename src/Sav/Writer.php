@@ -92,7 +92,7 @@ class Writer
         $this->info[Record\Info\LongStringMissingValues::SUBTYPE] = new Record\Info\LongStringMissingValues();
         $this->info[Record\Info\CharacterEncoding::SUBTYPE] = new Record\Info\CharacterEncoding('UTF-8');
 
-        $this->data = new Record\Data();
+        $this->data = new Record\Data($data['variables'][0]->caseCount(), count($data['variables']));
 
         $nominalIdx = 0;
 
@@ -102,10 +102,6 @@ class Writer
         $variableNames = [];
         /** @var Variable $var */
         foreach (array_values($data['variables']) as $idx => $var) {
-
-            if (is_array($var)) {
-                $var = new Variable($var);
-            }
 
             #if (! preg_match('/^[A-Za-z0-9_]+$/', $var->name)) {
             # UTF-8 and '.' characters could pass here
@@ -227,14 +223,13 @@ class Writer
                 ];
             }
 
-            // TODO: refactory
-            $dataCount = count($var->data);
+            $dataCount = $var->caseCount();
             if ($dataCount > $this->header->casesCount) {
                 $this->header->casesCount = $dataCount;
             }
 
-            foreach ($var->data as $case => $value) {
-                $this->data->matrix[$case][$idx] = $value;
+            foreach ($var->getCases() as $case => $value) {
+                $this->data->setValue($case, $idx, $value);
             }
 
             $nominalIdx += Utils::widthToOcts($var->width);

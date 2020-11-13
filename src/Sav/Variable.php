@@ -78,21 +78,33 @@ class Variable
         // '$@Role' => self::ROLE_BOTH
     ];
 
-    /**
-     * @var array
-     */
-    public $data = [];
+    private \SplFixedArray $cases;
+    private int $caseCount = 0;
 
-    /**
-     * Variable constructor.
-     *
-     * @param array $data
-     */
-    public function __construct($data = [])
+    public function __construct()
     {
-        foreach ($data as $key => $value) {
-            $this->{$key} = $value;
+        $this->cases = new \SplFixedArray(100);
+    }
+
+    public function getCases(): iterable
+    {
+        for($i = 0; $i < $this->caseCount; $i++) {
+            yield $i => $this->cases[$i];
         }
+    }
+
+    public function appendCase($value)
+    {
+        if ($this->caseCount === $this->cases->getSize()) {
+            $this->cases->setSize($this->caseCount + 100);
+        }
+        $this->cases[$this->caseCount] = $value;
+        $this->caseCount++;
+    }
+
+    public function caseCount(): int
+    {
+        return $this->caseCount;
     }
 
     /**

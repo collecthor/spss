@@ -4,6 +4,7 @@ namespace SPSS\Sav\Record;
 
 use SPSS\Buffer;
 use SPSS\Exception;
+use SPSS\Sav\Matrix;
 use SPSS\Sav\Record;
 use SPSS\Utils;
 
@@ -26,10 +27,7 @@ class Data extends Record
     /** Compressed sysmiss value. Expand to an 8-byte segment of SYSMISS value. */
     const OPCODE_SYSMISS = 255;
 
-    /**
-     * @var array [case_index][var_index]
-     */
-    public $matrix = [];
+    private Matrix $matrix;
 
     /**
      * @var array Latest opcodes data
@@ -41,6 +39,17 @@ class Data extends Record
      */
     private $opcodeIndex = 0;
 
+    public function __construct(int $rows, int $columns, $data = [])
+    {
+        $this->matrix = new Matrix($rows, $columns);
+        parent::__construct($data);
+    }
+
+
+    public function setValue(int $case, int $index, $value): void
+    {
+        $this->matrix->set($case, $index, $value);
+    }
     /**
      * @param Buffer $buffer
      * @throws Exception
@@ -84,8 +93,6 @@ class Data extends Record
         $this->opcodeIndex = 8;
 
         for ($case = 0; $case < $casesCount; $case++) {
-            $parent = -1;
-            $octs = 0;
             $varCount = count($variables);
             $varNum = 0;
             for($index = 0; $index < $varCount; $index++) {
@@ -95,7 +102,7 @@ class Data extends Record
 
                 if ($isNumeric) {
                     if (! $compressed) {
-                        $this->matrix[$case][$varNum] = $buffer->readDouble();
+                        $this->matrix->set($case, $varNum, $buffer->readDouble());
                     } else {
                         $opcode = $this->readOpcode($buffer);
                         switch ($opcode) {
@@ -107,19 +114,20 @@ class Data extends Record
                                 );
                                 break;
                             case self::OPCODE_RAW_DATA;
-                                $this->matrix[$case][$varNum] = $buffer->readDouble();
+                                $this->matrix->set($case, $varNum, $buffer->readDouble());
                                 break;
                             case self::OPCODE_SYSMISS;
-                                $this->matrix[$case][$varNum] = $sysmis;
+                                $this->matrix->set($case, $varNum, $sysmis);
                                 break;
                             default:
-                                $this->matrix[$case][$varNum] = $opcode - $bias;
+                                $this->matrix->set($case, $varNum, $opcode - $bias);
                                 break;
                         }
                     }
                 } else {
                     $width = isset($veryLongStrings[$var->name]) ? $veryLongStrings[$var->name] : $width;
-                    $this->matrix[$case][$varNum] = '';
+
+                    $value = '';
                     $segmentsCount = Utils::widthToSegments($width);
                     $opcode = self::OPCODE_RAW_DATA;
                     $index = $index - 1;
@@ -129,7 +137,7 @@ class Data extends Record
                         $index = $index + $octs;    // Skip a few variables for this segment
                         if ($opcode === self::OPCODE_NOP || $opcode === self::OPCODE_EOF) {
                             // If next segments are empty too, skip
-                            $continue;
+                            continue;
                         }
                         for ($i = $segWidth; $i > 0; $i -= 8) {
                             if ($segWidth == 255) {
@@ -159,9 +167,10 @@ class Data extends Record
                                         break;
                                 }
                             }
-                            $this->matrix[$case][$varNum] .= $val;
+                            $value .= $val;
                         }
-                        $this->matrix[$case][$varNum] = rtrim($this->matrix[$case][$varNum]);
+
+                        $this->matrix->set($case,$varNum, rtrim($value));
                     }
                 }
                 $varNum++;
@@ -226,7 +235,7 @@ class Data extends Record
 
         for ($case = 0; $case < $casesCount; $case++) {
             foreach ($variables as $index => $var) {
-                $value = $this->matrix[$case][$index];
+                $value = $this->matrix->get($case, $index);
 
                 // $isNumeric = $var->width == 0;
                 $isNumeric = $var->width == 0 && \SPSS\Sav\Variable::isNumberFormat($var->write[1]);
@@ -294,13 +303,5 @@ class Data extends Record
             $dataBuffer->truncate();
         }
         $this->opcodes[$this->opcodeIndex++] = 0xFF & $opcode;
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->matrix;
     }
 }
