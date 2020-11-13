@@ -14,7 +14,7 @@ class Matrix
     public function __construct(int $rows, int $columns)
     {
         $this->rows = new \SplFixedArray($rows);
-        for($i = 0; $i < $columns; $i++) {
+        for($i = 0; $i < $rows; $i++) {
             $this->rows[$i] = new \SplFixedArray($columns);
         }
     }
