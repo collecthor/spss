@@ -251,9 +251,9 @@ class Writer
         }
 
         // write valueLabels
-//        foreach ($this->valueLabels as $valueLabel) {
-//            $valueLabel->write($this->buffer);
-//        }
+        foreach ($this->valueLabels as $valueLabel) {
+            $valueLabel->write($this->buffer);
+        }
 
         // write documents
         if (! empty($data['documents'])) {
@@ -265,11 +265,6 @@ class Writer
         }
 
         foreach ($this->info as $info) {
-            if (in_array(get_class($info), [
-//                LongVariableNames::class
-            ])) {
-                continue;
-            }
             $info->write($this->buffer);
         }
 
