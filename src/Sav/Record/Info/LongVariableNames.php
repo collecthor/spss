@@ -36,11 +36,11 @@ class LongVariableNames extends Info
     {
         $data = '';
         foreach ($this->data as $key => $value) {
-            $data .= "$key=$value" . self::DELIMITER;
+            $data .= "$key=" . mb_strcut($value, 0, 64) . self::DELIMITER;
         }
 
         $data = substr($data, 0, -1);
-        $this->dataCount = strlen($data);
+        $this->dataCount = mb_strlen($data, '8bit');
         parent::write($buffer);
         $buffer->writeString($data);
     }
