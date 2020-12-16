@@ -232,7 +232,11 @@ class Writer
                 $this->data->setValue($case, $idx, $value);
             }
 
-            $nominalIdx += Utils::widthToOcts($var->width);
+            if (Variable::isNumberFormat($var->format)) {
+                $nominalIdx += 1;
+            } else {
+                $nominalIdx += Utils::widthToOcts($var->width);
+            }
         }
 
         $this->header->nominalCaseSize = $nominalIdx;
